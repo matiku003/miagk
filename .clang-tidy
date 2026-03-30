@@ -1,0 +1,92 @@
+Checks: >
+  -*,
+  readability-identifier-naming,
+  readability-braces-around-statements,
+  readability-named-parameter,
+  readability-redundant-smartptr-get,
+
+  modernize-use-override,
+  modernize-use-nullptr,
+  modernize-use-using,
+  modernize-loop-convert,
+  modernize-make-unique,
+  modernize-make-shared,
+
+  performance-unnecessary-value-param,
+  performance-for-range-copy,
+  performance-move-const-arg,
+  performance-inefficient-vector-operation,
+
+  bugprone-argument-comment,
+  bugprone-infinite-loop,
+  bugprone-unused-return-value,
+  bugprone-narrowing-conversions,
+
+  cppcoreguidelines-pro-type-member-init,
+  cppcoreguidelines-special-member-functions,
+
+  clang-analyzer-core.*,
+  clang-analyzer-cplusplus.*
+
+WarningsAsErrors: ''
+
+CheckOptions:
+
+  # =========================================================
+  # Naming Conventions
+  # =========================================================
+
+  # --- Namespaces ---
+  - { key: readability-identifier-naming.NamespaceCase, value: CamelCase }
+
+  # --- Classes & Structs ---
+  - { key: readability-identifier-naming.ClassCase, value: CamelCase }
+  - { key: readability-identifier-naming.StructCase, value: CamelCase }
+
+  # --- Methods & Functions ---
+  - { key: readability-identifier-naming.PublicMethodCase, value: camelBack }
+  - { key: readability-identifier-naming.FunctionCase, value: camelBack }
+
+  # --- Members ---
+  - { key: readability-identifier-naming.PrivateMemberCase, value: camelBack }
+  - { key: readability-identifier-naming.ProtectedMemberCase, value: camelBack }
+  - { key: readability-identifier-naming.PublicMemberCase, value: camelBack }
+
+  # --- Variables ---
+  - { key: readability-identifier-naming.VariableCase, value: camelBack }
+  - { key: readability-identifier-naming.GlobalVariableCase, value: camelBack }
+  - { key: readability-identifier-naming.ParameterCase, value: camelBack }
+
+  # =========================================================
+  # Constants & Enums
+  # =========================================================
+
+  # --- Global & static constants ---
+  - { key: readability-identifier-naming.GlobalConstantCase, value: UPPER_CASE }
+  - { key: readability-identifier-naming.StaticConstantCase, value: UPPER_CASE }
+
+  # --- Local constants ---
+  - { key: readability-identifier-naming.LocalConstantCase, value: camelBack }
+
+  # --- Class constants ---
+  - { key: readability-identifier-naming.ClassConstantCase, value: camelBack }
+
+  # --- Macros ---
+  - { key: readability-identifier-naming.MacroDefinitionCase, value: UPPER_CASE }
+
+  # --- Enums ---
+  - { key: readability-identifier-naming.EnumCase, value: CamelCase }
+  - { key: readability-identifier-naming.EnumConstantCase, value: UPPER_CASE }
+
+  # =========================================================
+  # Templates
+  # =========================================================
+
+  - { key: readability-identifier-naming.TemplateParameterCase, value: CamelCase }
+  - { key: readability-identifier-naming.TypeTemplateParameterCase, value: CamelCase }
+
+  # =========================================================
+  # Files
+  # =========================================================
+
+  - { key: readability-header-guard.HeaderGuardExtension, value: 'h,hpp' }
