@@ -1,4 +1,8 @@
-#include "renderer.h"
+#include "renderer/renderer.h"
+
+#include "core/color.h"
+#include "core/image.h"
+#include "math/geometry.h"
 
 bool Renderer::isInsideTriangle(const Triangle& triangle, const Point& point) {
     bool halfSpace1 = ((triangle.a.x - triangle.b.x) * (point.y - triangle.a.y)) -

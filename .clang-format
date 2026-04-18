@@ -6,7 +6,17 @@ ContinuationIndentWidth: 4
 BinPackArguments: false
 BinPackParameters: false
 AllowShortFunctionsOnASingleLine: Empty
+IncludeBlocks: Regroup
 SortIncludes: true
+IncludeCategories:
+  - Regex: '^<.*>$'
+    Priority: 1
+
+  - Regex: '^"external/.*"$'
+    Priority: 2
+
+  - Regex: '^".*"$'
+    Priority: 3
 AlignArrayOfStructures: Right
 AlignTrailingComments: true
 SpacesBeforeTrailingComments: '2'

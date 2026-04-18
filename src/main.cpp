@@ -1,13 +1,15 @@
-#include "image.h"
-#include "renderer.h"
 #include <chrono>
 #include <iostream>
-#include <vector>
+
+#include "core/color.h"
+#include "core/image.h"
+#include "math/geometry.h"
+#include "renderer/renderer.h"
 
 int main() {
     auto start = std::chrono::high_resolution_clock::now();
 
-    Image image(256, 256);
+    Image image(1024, 1024);
 
     Color color = {255, 0, 0};
     Color reverseColor = {static_cast<unsigned char>(255 - color.r),
@@ -15,9 +17,9 @@ int main() {
                           static_cast<unsigned char>(255 - color.b)};
 
     Triangle triangle = {
-        {-0.5, -0.5},
-        { 0.5, -0.5},
-        {   0,  0.5}
+        {-0.5f, -0.5f},
+        { 0.5f, -0.5f},
+        { 0.0f,  0.5f}
     };
 
     image.fill(color);

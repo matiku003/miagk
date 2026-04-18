@@ -1,8 +1,8 @@
 #pragma once
 
-#include "geometry.h"
-#include "image.h"
-#include <vector>
+#include "core/color.h"
+#include "core/image.h"
+#include "math/geometry.h"
 
 class Renderer {
   private:

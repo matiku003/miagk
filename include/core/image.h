@@ -1,7 +1,8 @@
 #pragma once
 
-#include "color.h"
 #include <vector>
+
+#include "color.h"
 
 class Image {
   public:

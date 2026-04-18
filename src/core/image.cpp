@@ -1,7 +1,13 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "image.h"
-#include "stb_image_write.h"
+
+#include "core/image.h"
+
+#include <algorithm>
 #include <iostream>
+
+#include "external/stb_image_write.h"
+
+#include "core/color.h"
 
 Image::Image(int w, int h) : width(w), height(h), colorBuffer(w * h) {}
 
