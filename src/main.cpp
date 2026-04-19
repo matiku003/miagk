@@ -4,7 +4,7 @@
 #include "core/color.h"
 #include "core/image.h"
 #include "math/geometry.h"
-#include "renderer/renderer.h"
+#include "rasterizer/rasterizer.h"
 
 int main() {
     auto start = std::chrono::high_resolution_clock::now();
@@ -17,13 +17,13 @@ int main() {
                           static_cast<unsigned char>(255 - color.b)};
 
     Triangle triangle = {
-        {-0.5f, -0.5f},
         { 0.5f, -0.5f},
+        {-0.5f, -0.5f},
         { 0.0f,  0.5f}
     };
 
     image.fill(color);
-    Renderer::drawTriangle(image, triangle, reverseColor);
+    Rasterizer::drawTriangle(image, triangle, reverseColor);
     image.saveTGA("output.tga");
 
     auto end = std::chrono::high_resolution_clock::now();
