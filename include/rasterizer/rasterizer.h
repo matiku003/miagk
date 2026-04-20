@@ -17,7 +17,7 @@ class Rasterizer {
     [[nodiscard]] static bool isInsideTriangle(const Triangle& triangle, const Point& point);
 
     /**
-     * @brief Checks whether the triangle's front is facing the camera.
+     * @brief Checks whether the triangle's front is facing the camera (right-handed coordinate system).
      *
      * @param triangle The triangle to test against. Winding order should be clockwise.
      * @return true if the triangle's winding order is clockwise, false otherwise.
@@ -28,7 +28,7 @@ class Rasterizer {
      * @brief Converts canonical coordinates [-1, 1] to image space [0, width], [0, height].
      *
      * @param point Canonical coordinates of point to be converted.
-     * @param image Full image containing information about width and height. Image has top-left origin.
+     * @param image Full image containing information about width and height. Image has bottom-left origin.
      * @return Point in image space.
      */
     [[nodiscard]] static Point toImageSpace(const Point& point, const Image& image);
@@ -53,7 +53,7 @@ class Rasterizer {
 
   public:
     /**
-     * @brief Draws triangle from bottom left corner to top right.
+     * @brief Draws triangle from top-left corner to bottom-right.
      *
      * @param image Image where the triangle will be drawn.
      * @param triangle Triangle to be drawn.

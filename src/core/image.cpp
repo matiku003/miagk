@@ -1,13 +1,9 @@
-
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-
 #include "core/image.h"
 
 #include <algorithm>
+#include <cstdio>
 #include <iostream>
 #include <vector>
-
-#include "external/stb_image_write.h"
 
 #include "core/color.h"
 
@@ -39,14 +35,29 @@ void Image::fill(const Color& color) {
 }
 
 void Image::saveTGA(const char* filename) const {
-    std::vector<unsigned char> buffer(width * height * 3);
+    unsigned short header[9] = {0x0000, 0x0002, 0x0000, 0x0000, 0x0000, 0x0000, 0x0100, 0x0100, 0x0820};
 
-    for (size_t i = 0; i < colorBuffer.size(); i++) {
-        buffer[i * 3 + 0] = (unsigned char)(std::clamp(colorBuffer[i].r, 0.0f, 1.0f) * 255.0f);
-        buffer[i * 3 + 1] = (unsigned char)(std::clamp(colorBuffer[i].g, 0.0f, 1.0f) * 255.0f);
-        buffer[i * 3 + 2] = (unsigned char)(std::clamp(colorBuffer[i].b, 0.0f, 1.0f) * 255.0f);
+    FILE* file = fopen(filename, "wb+");
+    if (file == NULL) {
+        return;
     }
 
-    stbi_write_tga(filename, (int)width, (int)height, 3, buffer.data());
+    header[6] = width;
+    header[7] = height;
+
+    std::vector<unsigned char> buffer(width * height * 4);
+
+    for (size_t i = 0; i < colorBuffer.size(); i++) {
+        buffer[i * 4 + 0] = (unsigned char)(std::clamp(colorBuffer[i].b, 0.0f, 1.0f) * 255.0f);
+        buffer[i * 4 + 1] = (unsigned char)(std::clamp(colorBuffer[i].g, 0.0f, 1.0f) * 255.0f);
+        buffer[i * 4 + 2] = (unsigned char)(std::clamp(colorBuffer[i].r, 0.0f, 1.0f) * 255.0f);
+        buffer[i * 4 + 3] = 255;
+    }
+
+    fwrite(header, 2, 9, file);
+    fwrite(buffer.data(), 4, colorBuffer.size(), file);
+
+    fclose(file);
+
     std::cout << "Image saved as " << filename << "\n";
 }

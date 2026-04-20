@@ -38,9 +38,6 @@
     <ClInclude Include="include\rasterizer\rasterizer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\external\stb_image_write.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\math\math.h">
       <Filter>Header Files</Filter>
     </ClInclude>

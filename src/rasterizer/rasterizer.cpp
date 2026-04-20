@@ -72,7 +72,8 @@ void Rasterizer::drawTriangle(Image& image, const Triangle& triangle) {
             if (isInsideTriangle(triangleInImageSpace, point)) {
                 Barycentric barycentricCoords = getBarycentricCoordinates(triangleInImageSpace, point);
                 Color interpolatedColor = getInterpolatedColor(triangleInImageSpace, barycentricCoords);
-                unsigned int index = ((imageHeight - 1 - y) * imageWidth) + x;
+
+                unsigned int index = (y * imageWidth) + x;
                 image.setPixelColor(index, interpolatedColor);
             }
         }

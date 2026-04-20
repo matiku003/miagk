@@ -160,7 +160,6 @@
     <ClInclude Include="include\core\image.h" />
     <ClInclude Include="include\math\math.h" />
     <ClInclude Include="include\rasterizer\rasterizer.h" />
-    <ClInclude Include="include\external\stb_image_write.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".clang-format" />

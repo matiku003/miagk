@@ -59,6 +59,9 @@ class Image {
     /**
      * @brief Saves color buffer data in .tga file.
      *
+     * The image is stored as an uncompressed 32-bit TGA (BGRA format).
+     * The alpha channel is always set to fully opaque (255).
+     *
      * @param filename Name of the output image in .tga format.
      */
     void saveTGA(const char* filename) const;
