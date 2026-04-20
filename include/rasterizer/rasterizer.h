@@ -3,6 +3,7 @@
 #include "core/color.h"
 #include "core/image.h"
 #include "math/geometry.h"
+#include "math/math.h"
 
 class Rasterizer {
   private:
@@ -13,7 +14,7 @@ class Rasterizer {
      * @param point The point to check.
      * @return true if point is inside the triangle, false otherwise.
      */
-    static bool isInsideTriangle(const Triangle& triangle, const Point& point);
+    [[nodiscard]] static bool isInsideTriangle(const Triangle& triangle, const Point& point);
 
     /**
      * @brief Checks whether the triangle's front is facing the camera.
@@ -21,7 +22,7 @@ class Rasterizer {
      * @param triangle The triangle to test against. Winding order should be clockwise.
      * @return true if the triangle's winding order is clockwise, false otherwise.
      */
-    static bool isFrontFacing(const Triangle& triangle);
+    [[nodiscard]] static bool isFrontFacing(const Triangle& triangle);
 
     /**
      * @brief Converts canonical coordinates [-1, 1] to image space [0, width], [0, height].
@@ -30,7 +31,16 @@ class Rasterizer {
      * @param image Full image containing information about width and height. Image has top-left origin.
      * @return Point in image space.
      */
-    static Point toImageSpace(const Point& point, const Image& image);
+    [[nodiscard]] static Point toImageSpace(const Point& point, const Image& image);
+
+    /**
+     * @brief Computes interpolated color at a point inside a triangle.
+     *
+     * @param triangle The input triangle.
+     * @param barycentricCoords Barycentric coordinates of the point.
+     * @return Interpolated color at the given point.
+     */
+    [[nodiscard]] static Color getInterpolatedColor(const Triangle& triangle, const Barycentric& barycentricCoords);
 
     /**
      * @brief Clamps axis-aligned bounding box to image boundaries.
@@ -39,7 +49,7 @@ class Rasterizer {
      * @param img Image used as boundary reference.
      * @return Clamped AABB constrained to image dimensions.
      */
-    static AABB clampAABBToImage(const AABB& bounds, const Image& img);
+    [[nodiscard]] static AABB clampAABBToImage(const AABB& bounds, const Image& img);
 
   public:
     /**
@@ -47,7 +57,6 @@ class Rasterizer {
      *
      * @param image Image where the triangle will be drawn.
      * @param triangle Triangle to be drawn.
-     * @param color Color of the triangle.
      */
-    static void drawTriangle(Image& image, const Triangle& triangle, const Color& color);
+    static void drawTriangle(Image& image, const Triangle& triangle);
 };

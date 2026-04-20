@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <vector>
 
 #include "external/stb_image_write.h"
 
@@ -38,6 +39,14 @@ void Image::fill(const Color& color) {
 }
 
 void Image::saveTGA(const char* filename) const {
-    stbi_write_tga(filename, width, height, 3, colorBuffer.data());
+    std::vector<unsigned char> buffer(width * height * 3);
+
+    for (size_t i = 0; i < colorBuffer.size(); i++) {
+        buffer[i * 3 + 0] = (unsigned char)(std::clamp(colorBuffer[i].r, 0.0f, 1.0f) * 255.0f);
+        buffer[i * 3 + 1] = (unsigned char)(std::clamp(colorBuffer[i].g, 0.0f, 1.0f) * 255.0f);
+        buffer[i * 3 + 2] = (unsigned char)(std::clamp(colorBuffer[i].b, 0.0f, 1.0f) * 255.0f);
+    }
+
+    stbi_write_tga(filename, (int)width, (int)height, 3, buffer.data());
     std::cout << "Image saved as " << filename << "\n";
 }

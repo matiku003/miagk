@@ -5,6 +5,7 @@
 #include "core/color.h"
 #include "core/image.h"
 #include "math/geometry.h"
+#include "math/math.h"
 
 bool Rasterizer::isInsideTriangle(const Triangle& triangle, const Point& point) {
     bool halfSpace1 = ((triangle.a.x - triangle.b.x) * (point.y - triangle.a.y)) -
@@ -35,7 +36,12 @@ Point Rasterizer::toImageSpace(const Point& point, const Image& image) {
 
     float x = (point.x + 1.0f) * width * 0.5f;
     float y = (point.y + 1.0f) * height * 0.5f;
-    return {x, y};
+    return {x, y, point.color};
+}
+
+Color Rasterizer::getInterpolatedColor(const Triangle& triangle, const Barycentric& barycentricCoords) {
+    return (barycentricCoords.lambda1 * triangle.a.color) + (barycentricCoords.lambda2 * triangle.b.color) +
+           (barycentricCoords.lambda3 * triangle.c.color);
 }
 
 AABB Rasterizer::clampAABBToImage(const AABB& bounds, const Image& img) {
@@ -45,12 +51,13 @@ AABB Rasterizer::clampAABBToImage(const AABB& bounds, const Image& img) {
             std::min(bounds.maxY, (float)img.getHeight() - 1)};
 }
 
-void Rasterizer::drawTriangle(Image& image, const Triangle& triangle, const Color& color) {
+void Rasterizer::drawTriangle(Image& image, const Triangle& triangle) {
     Triangle triangleInImageSpace = {
         toImageSpace(triangle.a, image), toImageSpace(triangle.b, image), toImageSpace(triangle.c, image)};
 
-    if (!isFrontFacing(triangleInImageSpace))
+    if (!isFrontFacing(triangleInImageSpace)) {
         return;
+    }
 
     AABB bounds = getTriangleAABB(triangleInImageSpace);
     AABB clippedBounds = clampAABBToImage(bounds, image);
@@ -63,8 +70,10 @@ void Rasterizer::drawTriangle(Image& image, const Triangle& triangle, const Colo
             Point point = {float(x), float(y)};
 
             if (isInsideTriangle(triangleInImageSpace, point)) {
+                Barycentric barycentricCoords = getBarycentricCoordinates(triangleInImageSpace, point);
+                Color interpolatedColor = getInterpolatedColor(triangleInImageSpace, barycentricCoords);
                 unsigned int index = ((imageHeight - 1 - y) * imageWidth) + x;
-                image.setPixelColor(index, color);
+                image.setPixelColor(index, interpolatedColor);
             }
         }
     }

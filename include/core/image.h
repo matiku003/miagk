@@ -24,14 +24,14 @@ class Image {
      *
      * @return Image width in pixels.
      */
-    unsigned int getWidth() const;
+    [[nodiscard]] unsigned int getWidth() const;
 
     /**
      * @brief Returns image height.
      *
      * @return Image height in pixels.
      */
-    unsigned int getHeight() const;
+    [[nodiscard]] unsigned int getHeight() const;
 
     /**
      * @brief Resizes the image and reinitializes the color buffer.

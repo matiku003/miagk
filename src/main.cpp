@@ -11,19 +11,19 @@ int main() {
 
     Image image(1024, 1024);
 
-    Color color = {255, 0, 0};
-    Color reverseColor = {static_cast<unsigned char>(255 - color.r),
-                          static_cast<unsigned char>(255 - color.g),
-                          static_cast<unsigned char>(255 - color.b)};
+    Color red = {1.0f, 0.0f, 0.0f};
+    Color green = {0.0f, 1.0f, 0.0f};
+    Color blue = {0.0f, 0.0f, 1.0f};
+    Color gray = {0.3f, 0.3f, 0.3f};
 
     Triangle triangle = {
-        { 0.5f, -0.5f},
-        {-0.5f, -0.5f},
-        { 0.0f,  0.5f}
+        { 0.5f, -0.5f,   red},
+        {-0.5f, -0.5f, green},
+        { 0.0f,  0.5f,  blue}
     };
 
-    image.fill(color);
-    Rasterizer::drawTriangle(image, triangle, reverseColor);
+    image.fill(gray);
+    Rasterizer::drawTriangle(image, triangle);
     image.saveTGA("output.tga");
 
     auto end = std::chrono::high_resolution_clock::now();
