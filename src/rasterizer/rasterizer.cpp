@@ -7,25 +7,23 @@
 #include "math/geometry.h"
 #include "math/math.h"
 
-bool Rasterizer::isInsideTriangle(const Triangle& triangle, const Point& point) {
-    bool halfSpace1 = ((triangle.a.x - triangle.b.x) * (point.y - triangle.a.y)) -
-                          ((triangle.a.y - triangle.b.y) * (point.x - triangle.a.x)) >
-                      0;
+bool Rasterizer::isInsideTriangle(const PreparedTriangle& triangle, const Point& point) {
+    float edgeAB = (triangle.dx12 * (point.y - triangle.a.y)) - (triangle.dy12 * (point.x - triangle.a.x));
+    float edgeBC = (triangle.dx23 * (point.y - triangle.b.y)) - (triangle.dy23 * (point.x - triangle.b.x));
+    float edgeCA = (triangle.dx31 * (point.y - triangle.c.y)) - (triangle.dy31 * (point.x - triangle.c.x));
 
-    bool halfSpace2 = ((triangle.b.x - triangle.c.x) * (point.y - triangle.b.y)) -
-                          ((triangle.b.y - triangle.c.y) * (point.x - triangle.b.x)) >
-                      0;
-
-    bool halfSpace3 = ((triangle.c.x - triangle.a.x) * (point.y - triangle.c.y)) -
-                          ((triangle.c.y - triangle.a.y) * (point.x - triangle.c.x)) >
-                      0;
+    bool halfSpace1 =
+        (triangle.dy12 < 0 || (triangle.dy12 == 0 && triangle.dx12 > 0)) ? (edgeAB >= 0.0f) : (edgeAB > 0.0f);
+    bool halfSpace2 =
+        (triangle.dy23 < 0 || (triangle.dy23 == 0 && triangle.dx23 > 0)) ? (edgeBC >= 0.0f) : (edgeBC > 0.0f);
+    bool halfSpace3 =
+        (triangle.dy31 < 0 || (triangle.dy31 == 0 && triangle.dx31 > 0)) ? (edgeCA >= 0.0f) : (edgeCA > 0.0f);
 
     return halfSpace1 && halfSpace2 && halfSpace3;
 }
 
-bool Rasterizer::isFrontFacing(const Triangle& triangle) {
-    float area = (triangle.b.x - triangle.a.x) * (triangle.c.y - triangle.a.y) -
-                 (triangle.b.y - triangle.a.y) * (triangle.c.x - triangle.a.x);
+bool Rasterizer::isFrontFacing(const PreparedTriangle& triangle) {
+    float area = ((-triangle.dx12) * (triangle.dy31)) - ((-triangle.dy12) * (triangle.dx31));
 
     return area < 0;
 }
@@ -37,6 +35,15 @@ Point Rasterizer::toImageSpace(const Point& point, const Image& image) {
     float x = (point.x + 1.0f) * width * 0.5f;
     float y = (point.y + 1.0f) * height * 0.5f;
     return {x, y, point.color};
+}
+
+Barycentric Rasterizer::getBarycentricCoordinates(const PreparedTriangle& triangle, const Point& point) {
+    float e2 = (triangle.dy23 * (point.x - triangle.c.x)) + ((-triangle.dx23) * (point.y - triangle.c.y));
+    float e3 = (triangle.dy31 * (point.x - triangle.c.x)) + ((-triangle.dx31) * (point.y - triangle.c.y));
+
+    float l1 = e2 * triangle.inverseDenominator;
+    float l2 = e3 * triangle.inverseDenominator;
+    return {l1, l2, 1.0f - l1 - l2};
 }
 
 Color Rasterizer::getInterpolatedColor(const Triangle& triangle, const Barycentric& barycentricCoords) {
@@ -55,7 +62,9 @@ void Rasterizer::drawTriangle(Image& image, const Triangle& triangle) {
     Triangle triangleInImageSpace = {
         toImageSpace(triangle.a, image), toImageSpace(triangle.b, image), toImageSpace(triangle.c, image)};
 
-    if (!isFrontFacing(triangleInImageSpace)) {
+    PreparedTriangle preparedTriangle(triangleInImageSpace);
+
+    if (!isFrontFacing(preparedTriangle)) {
         return;
     }
 
@@ -67,10 +76,10 @@ void Rasterizer::drawTriangle(Image& image, const Triangle& triangle) {
 
     for (int y = (int)clippedBounds.minY; y <= (int)clippedBounds.maxY; ++y) {
         for (int x = (int)clippedBounds.minX; x <= (int)clippedBounds.maxX; ++x) {
-            Point point = {float(x), float(y)};
+            Point point = {x + 0.5f, y + 0.5f};
 
-            if (isInsideTriangle(triangleInImageSpace, point)) {
-                Barycentric barycentricCoords = getBarycentricCoordinates(triangleInImageSpace, point);
+            if (isInsideTriangle(preparedTriangle, point)) {
+                Barycentric barycentricCoords = getBarycentricCoordinates(preparedTriangle, point);
                 Color interpolatedColor = getInterpolatedColor(triangleInImageSpace, barycentricCoords);
 
                 unsigned int index = (y * imageWidth) + x;
