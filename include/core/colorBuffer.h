@@ -4,10 +4,10 @@
 
 #include "color.h"
 
-class Image {
+class ColorBuffer {
   private:
-    unsigned int width = 1024;
-    unsigned int height = 1024;
+    unsigned int width = 0;
+    unsigned int height = 0;
     std::vector<Color> colorBuffer = {};
 
   public:
@@ -17,21 +17,7 @@ class Image {
      * @param width Image width.
      * @param height Image height.
      */
-    Image(unsigned int width, unsigned int height);
-
-    /**
-     * @brief Returns image width.
-     *
-     * @return Image width in pixels.
-     */
-    [[nodiscard]] unsigned int getWidth() const;
-
-    /**
-     * @brief Returns image height.
-     *
-     * @return Image height in pixels.
-     */
-    [[nodiscard]] unsigned int getHeight() const;
+    ColorBuffer(unsigned int width, unsigned int height);
 
     /**
      * @brief Resizes the image and reinitializes the color buffer.
@@ -47,7 +33,7 @@ class Image {
      * @param index Index in row-major buffer (y * width + x).
      * @param color Color to set.
      */
-    void setPixelColor(unsigned int index, const Color& color);
+    void setPixelColor(size_t index, const Color& color);
 
     /**
      * @brief Fills the color buffer with a single color.
@@ -57,12 +43,17 @@ class Image {
     void fill(const Color& color);
 
     /**
-     * @brief Saves color buffer data in .tga file.
-     *
-     * The image is stored as an uncompressed 32-bit TGA (BGRA format).
-     * The alpha channel is always set to fully opaque (255).
-     *
-     * @param filename Name of the output image in .tga format.
+     * @brief Returns image width.
      */
-    void saveTGA(const char* filename) const;
+    [[nodiscard]] unsigned int getWidth() const;
+
+    /**
+     * @brief Returns image height.
+     */
+    [[nodiscard]] unsigned int getHeight() const;
+
+    /**
+     * @brief Returns color buffer.
+     */
+    const std::vector<Color>& getColorBuffer() const;
 };

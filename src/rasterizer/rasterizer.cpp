@@ -3,7 +3,7 @@
 #include <algorithm>
 
 #include "core/color.h"
-#include "core/image.h"
+#include "core/framebuffer.h"
 #include "math/geometry.h"
 #include "math/math.h"
 
@@ -28,13 +28,13 @@ bool Rasterizer::isFrontFacing(const PreparedTriangle& triangle) {
     return area < 0;
 }
 
-Point Rasterizer::toImageSpace(const Point& point, const Image& image) {
-    const float width = static_cast<float>(image.getWidth());
-    const float height = static_cast<float>(image.getHeight());
+Point Rasterizer::toImageSpace(const Point& point, const Framebuffer& buffer) {
+    const float width = static_cast<float>(buffer.getWidth());
+    const float height = static_cast<float>(buffer.getHeight());
 
     float x = (point.x + 1.0f) * width * 0.5f;
     float y = (point.y + 1.0f) * height * 0.5f;
-    return {x, y, point.color};
+    return {x, y, point.z, point.color};
 }
 
 Barycentric Rasterizer::getBarycentricCoordinates(const PreparedTriangle& triangle, const Point& point) {
@@ -46,21 +46,16 @@ Barycentric Rasterizer::getBarycentricCoordinates(const PreparedTriangle& triang
     return {l1, l2, 1.0f - l1 - l2};
 }
 
-Color Rasterizer::getInterpolatedColor(const Triangle& triangle, const Barycentric& barycentricCoords) {
-    return (barycentricCoords.lambda1 * triangle.a.color) + (barycentricCoords.lambda2 * triangle.b.color) +
-           (barycentricCoords.lambda3 * triangle.c.color);
-}
-
-AABB Rasterizer::clampAABBToImage(const AABB& bounds, const Image& img) {
+AABB Rasterizer::clampAABBToImage(const AABB& bounds, const Framebuffer& buffer) {
     return {std::max(bounds.minX, 0.0f),
             std::max(bounds.minY, 0.0f),
-            std::min(bounds.maxX, (float)img.getWidth() - 1),
-            std::min(bounds.maxY, (float)img.getHeight() - 1)};
+            std::min(bounds.maxX, (float)buffer.getWidth() - 1),
+            std::min(bounds.maxY, (float)buffer.getHeight() - 1)};
 }
 
-void Rasterizer::drawTriangle(Image& image, const Triangle& triangle) {
+void Rasterizer::drawTriangle(Framebuffer& buffer, const Triangle& triangle) {
     Triangle triangleInImageSpace = {
-        toImageSpace(triangle.a, image), toImageSpace(triangle.b, image), toImageSpace(triangle.c, image)};
+        toImageSpace(triangle.a, buffer), toImageSpace(triangle.b, buffer), toImageSpace(triangle.c, buffer)};
 
     PreparedTriangle preparedTriangle(triangleInImageSpace);
 
@@ -69,10 +64,10 @@ void Rasterizer::drawTriangle(Image& image, const Triangle& triangle) {
     }
 
     AABB bounds = getTriangleAABB(triangleInImageSpace);
-    AABB clippedBounds = clampAABBToImage(bounds, image);
+    AABB clippedBounds = clampAABBToImage(bounds, buffer);
 
-    unsigned int imageWidth = image.getWidth();
-    unsigned int imageHeight = image.getHeight();
+    unsigned int imageWidth = buffer.getWidth();
+    unsigned int imageHeight = buffer.getHeight();
 
     for (int y = (int)clippedBounds.minY; y <= (int)clippedBounds.maxY; ++y) {
         for (int x = (int)clippedBounds.minX; x <= (int)clippedBounds.maxX; ++x) {
@@ -80,10 +75,17 @@ void Rasterizer::drawTriangle(Image& image, const Triangle& triangle) {
 
             if (isInsideTriangle(preparedTriangle, point)) {
                 Barycentric barycentricCoords = getBarycentricCoordinates(preparedTriangle, point);
-                Color interpolatedColor = getInterpolatedColor(triangleInImageSpace, barycentricCoords);
+                Color interpolatedColor = interpolate(barycentricCoords,
+                                                      triangleInImageSpace.a.color,
+                                                      triangleInImageSpace.b.color,
+                                                      triangleInImageSpace.c.color);
+                float depth = interpolate(
+                    barycentricCoords, triangleInImageSpace.a.z, triangleInImageSpace.b.z, triangleInImageSpace.c.z);
 
                 unsigned int index = (y * imageWidth) + x;
-                image.setPixelColor(index, interpolatedColor);
+                if (buffer.passesDepthTest(index, depth)) {
+                    buffer.setPixel(index, depth, interpolatedColor);
+                }
             }
         }
     }

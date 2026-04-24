@@ -150,16 +150,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\core\image.cpp" />
+    <ClCompile Include="src\core\depthBuffer.cpp" />
+    <ClCompile Include="src\core\framebuffer.cpp" />
+    <ClCompile Include="src\core\colorBuffer.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\rasterizer\rasterizer.cpp" />
+    <ClCompile Include="src\utils\imageExporter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\core\color.h" />
+    <ClInclude Include="include\core\depthBuffer.h" />
+    <ClInclude Include="include\core\framebuffer.h" />
     <ClInclude Include="include\math\geometry.h" />
-    <ClInclude Include="include\core\image.h" />
+    <ClInclude Include="include\core\colorBuffer.h" />
     <ClInclude Include="include\math\math.h" />
     <ClInclude Include="include\rasterizer\rasterizer.h" />
+    <ClInclude Include="include\utils\imageExporter.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".clang-format" />
