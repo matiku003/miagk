@@ -1,46 +1,41 @@
 #include <chrono>
 #include <iostream>
 
-#include "core/color.h"
 #include "core/framebuffer.h"
 #include "math/geometry.h"
+#include "math/pipeline.h"
+#include "math/transform.h"
+#include "math/vector.h"
 #include "rasterizer/rasterizer.h"
 #include "utils/imageExporter.h"
 
 int main() {
     auto start = std::chrono::high_resolution_clock::now();
 
+    TransformSystem transform;
+
+    transform.setPerspective(60.0f, 1.0f, 0.1f, 100.0f);
+
+    transform.setLookAt({0, 0, 3}, {0, 0, 0}, {0, 1, 0});
+
     Framebuffer framebuffer(1024, 1024);
 
-    Color gray = {0.3f, 0.3f, 0.3f};
+    float3 gray = {0.3f, 0.3f, 0.3f};
 
-    Color red = {1.0f, 0.0f, 0.0f};
-    Color green = {0.0f, 1.0f, 0.0f};
-    Color blue = {0.0f, 0.0f, 1.0f};
+    float3 red = {1.0f, 0.0f, 0.0f};
+    float3 green = {0.0f, 1.0f, 0.0f};
+    float3 blue = {0.0f, 0.0f, 1.0f};
+    float3 vertexA = {1.0f, -1.0f, 0.0f};
+    float3 vertexB = {-1.0f, -1.0f, 0.0f};
+    float3 vertexC = {0.0f, 1.0f, 0.0f};
 
-    Triangle triangle1 = {
-        {-1.5f,  0.5f, 0.0f,   red},
-        { 0.5f,  0.5f, 0.0f, green},
-        {-0.5f, -0.5f, 0.0f,  blue}
-    };
-
-    Triangle triangle2 = {
-        { 0.5f,  0.5f, 0.0f,   red},
-        { 0.5f, -0.5f, 0.0f, green},
-        {-0.5f, -0.5f, 0.0f,  blue}
-    };
-
-    Triangle triangle3 = {
-        {-0.5f, -0.5f,  0.5f,   red},
-        {-0.5f,  0.5f,  0.5f, green},
-        { 1.0f,  0.0f, -0.5f,  blue}
-    };
+    Triangle triangle = {applyMVP(transform, Point(vertexA, red)),
+                         applyMVP(transform, Point(vertexB, green)),
+                         applyMVP(transform, Point(vertexC, blue))};
 
     framebuffer.clear(gray);
 
-    Rasterizer::drawTriangle(framebuffer, triangle1);
-    Rasterizer::drawTriangle(framebuffer, triangle2);
-    Rasterizer::drawTriangle(framebuffer, triangle3);
+    Rasterizer::drawTriangle(framebuffer, triangle);
     ImageExporter::saveTGA(framebuffer.getColorBuffer(), "output.tga");
 
     auto end = std::chrono::high_resolution_clock::now();

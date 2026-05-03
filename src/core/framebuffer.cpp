@@ -1,16 +1,16 @@
 #include "core/framebuffer.h"
 
-#include "core/color.h"
 #include "core/colorBuffer.h"
+#include "math/vector.h"
 
 Framebuffer::Framebuffer(unsigned int w, unsigned int h) : colorBuffer(w, h), depthBuffer(w, h) {}
 
-void Framebuffer::clear(const Color& clearColor, float clearDepth) {
+void Framebuffer::clear(const float3& clearColor, float clearDepth) {
     colorBuffer.fill(clearColor);
     depthBuffer.clear(clearDepth);
 }
 
-void Framebuffer::setPixel(size_t index, float z, const Color& colorVal) {
+void Framebuffer::setPixel(size_t index, float z, const float3& colorVal) {
     depthBuffer.setDepth(index, z);
     colorBuffer.setPixelColor(index, colorVal);
 }

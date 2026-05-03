@@ -1,15 +1,15 @@
 #pragma once
 
-#include "core/color.h"
+#include <algorithm>
+
+#include "math/vector.h"
 
 /**
  * @brief Represents a 3D point with an associated color.
  */
 struct Point {
-    float x = 0.0f;
-    float y = 0.0f;
-    float z = 0.0f;
-    Color color{};
+    float3 position{};
+    float3 color{};
 };
 
 /**

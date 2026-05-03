@@ -2,13 +2,13 @@
 
 #include <vector>
 
-#include "color.h"
+#include "math/vector.h"
 
 class ColorBuffer {
   private:
     unsigned int width = 0;
     unsigned int height = 0;
-    std::vector<Color> colorBuffer = {};
+    std::vector<float3> colorBuffer = {};
 
   public:
     /**
@@ -33,14 +33,14 @@ class ColorBuffer {
      * @param index Index in row-major buffer (y * width + x).
      * @param color Color to set.
      */
-    void setPixelColor(size_t index, const Color& color);
+    void setPixelColor(size_t index, const float3& color);
 
     /**
      * @brief Fills the color buffer with a single color.
      *
      * @param color Color to fill the image with.
      */
-    void fill(const Color& color);
+    void fill(const float3& color);
 
     /**
      * @brief Returns image width.
@@ -55,5 +55,5 @@ class ColorBuffer {
     /**
      * @brief Returns color buffer.
      */
-    const std::vector<Color>& getColorBuffer() const;
+    const std::vector<float3>& getColorBuffer() const;
 };

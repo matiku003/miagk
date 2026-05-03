@@ -3,8 +3,8 @@
 #include <cstdlib>
 
 #include "core/framebuffer.h"
+#include "math/barycentric.h"
 #include "math/geometry.h"
-#include "math/math.h"
 
 /**
  * @brief Represents a triangle with precomputed edge data for optimized rasterization.
@@ -24,12 +24,12 @@ struct PreparedTriangle {
      * @param triangle The source triangle, typically already transformed to image space.
      */
     PreparedTriangle(const Triangle& triangle) : a(triangle.a), b(triangle.b), c(triangle.c) {
-        dx12 = a.x - b.x;
-        dy12 = a.y - b.y;
-        dx23 = b.x - c.x;
-        dy23 = b.y - c.y;
-        dx31 = c.x - a.x;
-        dy31 = c.y - a.y;
+        dx12 = a.position.x - b.position.x;
+        dy12 = a.position.y - b.position.y;
+        dx23 = b.position.x - c.position.x;
+        dy23 = b.position.y - c.position.y;
+        dx31 = c.position.x - a.position.x;
+        dy31 = c.position.y - a.position.y;
 
         float denominator = (dy23 * (-dx31)) + ((-dx23) * (-dy31));
         inverseDenominator = (std::abs(denominator) > 1e-7f) ? (1.0f / denominator) : 0.0f;

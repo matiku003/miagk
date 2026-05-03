@@ -5,13 +5,13 @@
 #include <iostream>
 #include <vector>
 
-#include "core/color.h"
 #include "core/colorBuffer.h"
+#include "math/vector.h"
 
 void ImageExporter::saveTGA(const ColorBuffer& image, const char* filename) {
     unsigned int width = image.getWidth();
     unsigned int height = image.getHeight();
-    std::vector<Color> colorBuffer = image.getColorBuffer();
+    std::vector<float3> colorBuffer = image.getColorBuffer();
 
     unsigned short header[9] = {0x0000, 0x0002, 0x0000, 0x0000, 0x0000, 0x0000, 0x0100, 0x0100, 0x0820};
 

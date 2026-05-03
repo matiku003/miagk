@@ -2,15 +2,18 @@
 
 #include <algorithm>
 
-#include "core/color.h"
 #include "core/framebuffer.h"
+#include "math/barycentric.h"
 #include "math/geometry.h"
-#include "math/math.h"
+#include "math/vector.h"
 
 bool Rasterizer::isInsideTriangle(const PreparedTriangle& triangle, const Point& point) {
-    float edgeAB = (triangle.dx12 * (point.y - triangle.a.y)) - (triangle.dy12 * (point.x - triangle.a.x));
-    float edgeBC = (triangle.dx23 * (point.y - triangle.b.y)) - (triangle.dy23 * (point.x - triangle.b.x));
-    float edgeCA = (triangle.dx31 * (point.y - triangle.c.y)) - (triangle.dy31 * (point.x - triangle.c.x));
+    float edgeAB = (triangle.dx12 * (point.position.y - triangle.a.position.y)) -
+                   (triangle.dy12 * (point.position.x - triangle.a.position.x));
+    float edgeBC = (triangle.dx23 * (point.position.y - triangle.b.position.y)) -
+                   (triangle.dy23 * (point.position.x - triangle.b.position.x));
+    float edgeCA = (triangle.dx31 * (point.position.y - triangle.c.position.y)) -
+                   (triangle.dy31 * (point.position.x - triangle.c.position.x));
 
     bool halfSpace1 =
         (triangle.dy12 < 0 || (triangle.dy12 == 0 && triangle.dx12 > 0)) ? (edgeAB >= 0.0f) : (edgeAB > 0.0f);
@@ -32,14 +35,21 @@ Point Rasterizer::toImageSpace(const Point& point, const Framebuffer& buffer) {
     const float width = static_cast<float>(buffer.getWidth());
     const float height = static_cast<float>(buffer.getHeight());
 
-    float x = (point.x + 1.0f) * width * 0.5f;
-    float y = (point.y + 1.0f) * height * 0.5f;
-    return {x, y, point.z, point.color};
+    float x = (point.position.x + 1.0f) * width * 0.5f;
+    float y = (point.position.y + 1.0f) * height * 0.5f;
+    float z = point.position.z;
+
+    return {
+        {x, y, z},
+        point.color
+    };
 }
 
 Barycentric Rasterizer::getBarycentricCoordinates(const PreparedTriangle& triangle, const Point& point) {
-    float e2 = (triangle.dy23 * (point.x - triangle.c.x)) + ((-triangle.dx23) * (point.y - triangle.c.y));
-    float e3 = (triangle.dy31 * (point.x - triangle.c.x)) + ((-triangle.dx31) * (point.y - triangle.c.y));
+    float e2 = (triangle.dy23 * (point.position.x - triangle.c.position.x)) +
+               ((-triangle.dx23) * (point.position.y - triangle.c.position.y));
+    float e3 = (triangle.dy31 * (point.position.x - triangle.c.position.x)) +
+               ((-triangle.dx31) * (point.position.y - triangle.c.position.y));
 
     float l1 = e2 * triangle.inverseDenominator;
     float l2 = e3 * triangle.inverseDenominator;
@@ -71,16 +81,21 @@ void Rasterizer::drawTriangle(Framebuffer& buffer, const Triangle& triangle) {
 
     for (int y = (int)clippedBounds.minY; y <= (int)clippedBounds.maxY; ++y) {
         for (int x = (int)clippedBounds.minX; x <= (int)clippedBounds.maxX; ++x) {
-            Point point = {x + 0.5f, y + 0.5f};
+            Point point = {
+                {x + 0.5f, y + 0.5f, 0.0f},
+                {}
+            };
 
             if (isInsideTriangle(preparedTriangle, point)) {
                 Barycentric barycentricCoords = getBarycentricCoordinates(preparedTriangle, point);
-                Color interpolatedColor = interpolate(barycentricCoords,
-                                                      triangleInImageSpace.a.color,
-                                                      triangleInImageSpace.b.color,
-                                                      triangleInImageSpace.c.color);
-                float depth = interpolate(
-                    barycentricCoords, triangleInImageSpace.a.z, triangleInImageSpace.b.z, triangleInImageSpace.c.z);
+                float3 interpolatedColor = interpolate(barycentricCoords,
+                                                       triangleInImageSpace.a.color,
+                                                       triangleInImageSpace.b.color,
+                                                       triangleInImageSpace.c.color);
+                float depth = interpolate(barycentricCoords,
+                                          triangleInImageSpace.a.position.z,
+                                          triangleInImageSpace.b.position.z,
+                                          triangleInImageSpace.c.position.z);
 
                 unsigned int index = (y * imageWidth) + x;
                 if (buffer.passesDepthTest(index, depth)) {

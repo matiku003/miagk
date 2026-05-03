@@ -1,8 +1,8 @@
 #pragma once
 
-#include "color.h"
 #include "colorBuffer.h"
 #include "depthBuffer.h"
+#include "math/vector.h"
 
 class Framebuffer {
   private:
@@ -24,7 +24,7 @@ class Framebuffer {
      * @param clearColor Color used to clear the color buffer.
      * @param clearDepth Value used to clear the depth buffer.
      */
-    void clear(const Color& clearColor, float clearDepth = -1.0f);
+    void clear(const float3& clearColor, float clearDepth = -1.0f);
 
     /**
      * @brief Writes a pixel.
@@ -33,7 +33,7 @@ class Framebuffer {
      * @param z Depth value of the pixel.
      * @param color Color to write.
      */
-    void setPixel(size_t index, float z, const Color& color);
+    void setPixel(size_t index, float z, const float3& color);
 
     /**
      * @brief Performs depth comparison for a pixel.
