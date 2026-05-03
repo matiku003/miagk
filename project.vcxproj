@@ -158,12 +158,16 @@
     <ClCompile Include="src\utils\imageExporter.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\core\color.h" />
     <ClInclude Include="include\core\depthBuffer.h" />
     <ClInclude Include="include\core\framebuffer.h" />
     <ClInclude Include="include\math\geometry.h" />
     <ClInclude Include="include\core\colorBuffer.h" />
+    <ClInclude Include="include\math\barycentric.h" />
     <ClInclude Include="include\math\math.h" />
+    <ClInclude Include="include\math\matrix.h" />
+    <ClInclude Include="include\math\pipeline.h" />
+    <ClInclude Include="include\math\vector.h" />
+    <ClInclude Include="include\math\transform.h" />
     <ClInclude Include="include\rasterizer\rasterizer.h" />
     <ClInclude Include="include\utils\imageExporter.h" />
   </ItemGroup>

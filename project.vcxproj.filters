@@ -35,9 +35,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\core\color.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\math\geometry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -47,7 +44,7 @@
     <ClInclude Include="include\rasterizer\rasterizer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\math\math.h">
+    <ClInclude Include="include\math\barycentric.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\core\depthBuffer.h">
@@ -57,6 +54,21 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\utils\imageExporter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\math\vector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\math\matrix.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\math\math.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\math\transform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\math\pipeline.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
