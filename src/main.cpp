@@ -6,12 +6,18 @@
 #include "math/pipeline.h"
 #include "math/transform.h"
 #include "math/vector.h"
+#include "mesh/mesh.h"
 #include "rasterizer/rasterizer.h"
 #include "utils/imageExporter.h"
 
-static void draw(Framebuffer& framebuffer, const TransformSystem& transform, Point a, Point b, Point c) {
-    Rasterizer::drawTriangle(framebuffer,
-                             Triangle{applyMVP(transform, a), applyMVP(transform, b), applyMVP(transform, c)});
+static void drawMesh(Framebuffer& framebuffer, const TransformSystem& transform, const Mesh& mesh) {
+    for (const auto& tri : mesh.indices) {
+        Rasterizer::drawTriangle(
+            framebuffer,
+            Triangle{applyMVP(transform, {mesh.vertices[tri.a].position, float3(1.0f, 0.0f, 0.0f)}),
+                     applyMVP(transform, {mesh.vertices[tri.b].position, float3(0.0f, 1.0f, 0.0f)}),
+                     applyMVP(transform, {mesh.vertices[tri.c].position, float3(0.0f, 0.0f, 1.0f)})});
+    }
 }
 
 int main() {
@@ -21,54 +27,57 @@ int main() {
 
     transform.setPerspective(60.0f, 1.0f, 0.1f, 100.0f);
 
-    transform.setLookAt({3, 3, 3}, {0, 0, 0}, {0, 1, 0});
+    transform.setLookAt({4, 4, 4}, {0, 0, 0}, {0, 1, 0});
 
     Framebuffer framebuffer(1024, 1024);
 
     float3 gray = {0.3f, 0.3f, 0.3f};
 
-    float3 red = {1.0f, 0.0f, 0.0f};
-    float3 green = {0.0f, 1.0f, 0.0f};
-    float3 blue = {0.0f, 0.0f, 1.0f};
-    float3 white = {1.0f, 1.0f, 1.0f};
-
-    float3 v0 = {-1.0f, -1.0f, -1.0f};
-    float3 v1 = {1.0f, -1.0f, -1.0f};
-    float3 v2 = {1.0f, 1.0f, -1.0f};
-    float3 v3 = {-1.0f, 1.0f, -1.0f};
-
-    float3 v4 = {-1.0f, -1.0f, 1.0f};
-    float3 v5 = {1.0f, -1.0f, 1.0f};
-    float3 v6 = {1.0f, 1.0f, 1.0f};
-    float3 v7 = {-1.0f, 1.0f, 1.0f};
-
     framebuffer.clear(gray);
 
-    // transform.multiplyByScale({0.5f, 0.5f, 0.5f});
+    Mesh triangle, cube, pyramid, tetrahedron, cone, cylinder, sphere, torus;
 
-    // BACK (-Z)
-    draw(framebuffer, transform, Point(v0, red), Point(v1, red), Point(v2, red));
-    draw(framebuffer, transform, Point(v0, red), Point(v2, red), Point(v3, red));
+    // triangle.buildTriangle();
+    // triangle.calculateNormals();
+    // triangle.setColor();
+    // drawMesh(framebuffer, transform, triangle);
 
-    // FRONT (+Z)
-    draw(framebuffer, transform, Point(v4, blue), Point(v6, blue), Point(v5, blue));
-    draw(framebuffer, transform, Point(v4, blue), Point(v7, blue), Point(v6, blue));
+    cube.buildCube();
+    cube.calculateNormals();
+    transform.multiplyByTranslation(float3(-2, 0, -2));
+    drawMesh(framebuffer, transform, cube);
 
-    // LEFT (-X)
-    draw(framebuffer, transform, Point(v0, green), Point(v3, green), Point(v7, green));
-    draw(framebuffer, transform, Point(v0, green), Point(v7, green), Point(v4, green));
+    pyramid.buildPyramid();
+    pyramid.calculateNormals();
+    transform.multiplyByTranslation(float3(2, 0, 0));
+    drawMesh(framebuffer, transform, pyramid);
 
-    // RIGHT (+X)
-    draw(framebuffer, transform, Point(v1, white), Point(v5, white), Point(v6, white));
-    draw(framebuffer, transform, Point(v1, white), Point(v6, white), Point(v2, white));
+    tetrahedron.buildTetrahedron();
+    tetrahedron.calculateNormals();
+    transform.multiplyByTranslation(float3(2, 0, 0));
+    drawMesh(framebuffer, transform, tetrahedron);
 
-    // TOP (+Y)
-    draw(framebuffer, transform, Point(v3, red), Point(v2, green), Point(v6, blue));
-    draw(framebuffer, transform, Point(v3, red), Point(v6, blue), Point(v7, green));
+    int steps = 20;
 
-    // BOTTOM (-Y)
-    draw(framebuffer, transform, Point(v0, red), Point(v4, green), Point(v5, blue));
-    draw(framebuffer, transform, Point(v0, red), Point(v5, blue), Point(v1, green));
+    cone.buildCone(steps);
+    cone.calculateNormals();
+    transform.multiplyByTranslation(float3(0, 0, 2));
+    drawMesh(framebuffer, transform, cone);
+
+    cylinder.buildCylinder(steps, steps);
+    cylinder.calculateNormals();
+    transform.multiplyByTranslation(float3(-2, 0, 0));
+    drawMesh(framebuffer, transform, cylinder);
+
+    sphere.buildSphere(steps, steps);
+    sphere.calculateNormals();
+    transform.multiplyByTranslation(float3(-2, 0, 0));
+    drawMesh(framebuffer, transform, sphere);
+
+    torus.buildTorus(steps, steps);
+    torus.calculateNormals();
+    transform.multiplyByTranslation(float3(2, 0, 2));
+    drawMesh(framebuffer, transform, torus);
 
     ImageExporter::saveTGA(framebuffer.getColorBuffer(), "output.tga");
 

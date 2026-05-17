@@ -107,13 +107,13 @@ struct float4 {
 struct int3 {
     union {
         struct {
-            int x, y, z;
+            int a, b, c;
         };
         int data[3];
     };
 
-    constexpr int3() : x(0), y(0), z(0) {}
-    constexpr int3(int x, int y, int z) : x(x), y(y), z(z) {}
+    constexpr int3() : a(0), b(0), c(0) {}
+    constexpr int3(int a, int b, int c) : a(a), b(b), c(c) {}
 
     int& operator[](size_t index) {
         return data[index];

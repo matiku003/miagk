@@ -154,6 +154,7 @@
     <ClCompile Include="src\core\framebuffer.cpp" />
     <ClCompile Include="src\core\colorBuffer.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\mesh\mesh.cpp" />
     <ClCompile Include="src\rasterizer\rasterizer.cpp" />
     <ClCompile Include="src\utils\imageExporter.cpp" />
   </ItemGroup>
@@ -168,6 +169,7 @@
     <ClInclude Include="include\math\pipeline.h" />
     <ClInclude Include="include\math\vector.h" />
     <ClInclude Include="include\math\transform.h" />
+    <ClInclude Include="include\mesh\mesh.h" />
     <ClInclude Include="include\rasterizer\rasterizer.h" />
     <ClInclude Include="include\utils\imageExporter.h" />
   </ItemGroup>

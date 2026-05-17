@@ -51,8 +51,8 @@ struct TransformSystem {
 
         view2proj[0] = float4{f / aspect, 0.0f, 0.0f, 0.0f};
         view2proj[1] = float4{0.0f, f, 0.0f, 0.0f};
-        view2proj[2] = float4{0.0f, 0.0f, (far + near) / (near - far), -1.0f};
-        view2proj[3] = float4{0.0f, 0.0f, (2 * far * near) / (near - far), 0.0f};
+        view2proj[2] = float4{0.0f, 0.0f, (far + near) / (far - near), -1.0f};
+        view2proj[3] = float4{0.0f, 0.0f, (2 * far * near) / (far - near), 0.0f};
     }
 
     /**
