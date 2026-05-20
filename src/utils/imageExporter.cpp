@@ -5,7 +5,7 @@
 #include <iostream>
 #include <vector>
 
-#include "core/colorBuffer.h"
+#include "buffer/colorBuffer.h"
 #include "math/vector.h"
 
 void ImageExporter::saveTGA(const ColorBuffer& image, const char* filename) {

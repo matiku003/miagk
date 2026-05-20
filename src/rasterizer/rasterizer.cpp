@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-#include "core/framebuffer.h"
+#include "buffer/framebuffer.h"
 #include "math/barycentric.h"
 #include "math/geometry.h"
 #include "math/vector.h"

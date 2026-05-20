@@ -150,19 +150,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\core\depthBuffer.cpp" />
-    <ClCompile Include="src\core\framebuffer.cpp" />
-    <ClCompile Include="src\core\colorBuffer.cpp" />
+    <ClCompile Include="src\buffer\depthBuffer.cpp" />
+    <ClCompile Include="src\buffer\framebuffer.cpp" />
+    <ClCompile Include="src\buffer\colorBuffer.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\mesh\mesh.cpp" />
     <ClCompile Include="src\rasterizer\rasterizer.cpp" />
     <ClCompile Include="src\utils\imageExporter.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\core\depthBuffer.h" />
-    <ClInclude Include="include\core\framebuffer.h" />
+    <ClInclude Include="include\buffer\depthBuffer.h" />
+    <ClInclude Include="include\buffer\framebuffer.h" />
     <ClInclude Include="include\math\geometry.h" />
-    <ClInclude Include="include\core\colorBuffer.h" />
+    <ClInclude Include="include\buffer\colorBuffer.h" />
     <ClInclude Include="include\math\barycentric.h" />
     <ClInclude Include="include\math\math.h" />
     <ClInclude Include="include\math\matrix.h" />

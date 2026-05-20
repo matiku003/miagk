@@ -1,4 +1,4 @@
-#include "core/depthBuffer.h"
+#include "buffer/depthBuffer.h"
 
 #include <algorithm>
 

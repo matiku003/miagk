@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\core\colorBuffer.cpp">
+    <ClCompile Include="src\buffer\colorBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\main.cpp">
@@ -24,10 +24,10 @@
     <ClCompile Include="src\rasterizer\rasterizer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\core\depthBuffer.cpp">
+    <ClCompile Include="src\buffer\depthBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\core\framebuffer.cpp">
+    <ClCompile Include="src\buffer\framebuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\utils\imageExporter.cpp">
@@ -41,7 +41,7 @@
     <ClInclude Include="include\math\geometry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\core\colorBuffer.h">
+    <ClInclude Include="include\buffer\colorBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\rasterizer\rasterizer.h">
@@ -50,10 +50,10 @@
     <ClInclude Include="include\math\barycentric.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\core\depthBuffer.h">
+    <ClInclude Include="include\buffer\depthBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\core\framebuffer.h">
+    <ClInclude Include="include\buffer\framebuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\utils\imageExporter.h">

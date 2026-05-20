@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/colorBuffer.h"
+#include "buffer/colorBuffer.h"
 
 class ImageExporter {
   public:

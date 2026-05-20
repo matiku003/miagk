@@ -1,6 +1,6 @@
-#include "core/framebuffer.h"
+#include "buffer/framebuffer.h"
 
-#include "core/colorBuffer.h"
+#include "buffer/colorBuffer.h"
 #include "math/vector.h"
 
 Framebuffer::Framebuffer(unsigned int w, unsigned int h) : colorBuffer(w, h), depthBuffer(w, h) {}

@@ -1,7 +1,7 @@
 #include <chrono>
 #include <iostream>
 
-#include "core/framebuffer.h"
+#include "buffer/framebuffer.h"
 #include "math/geometry.h"
 #include "math/pipeline.h"
 #include "math/transform.h"

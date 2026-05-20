@@ -1,4 +1,4 @@
-#include "core/colorBuffer.h"
+#include "buffer/colorBuffer.h"
 
 #include <algorithm>
 #include <vector>
