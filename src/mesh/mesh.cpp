@@ -1,7 +1,6 @@
 #include "mesh/mesh.h"
 
 #include <cmath>
-#include <utility>
 #include <vector>
 
 #include "math/geometry.h"
@@ -108,7 +107,7 @@ void Mesh::buildCone(int step) {
     indices.resize(indicesCount);
 
     for (int i = 0; i < step; i++) {
-        float t = -i * angleStep;
+        float t = i * angleStep;
 
         vertices[i].position = float3(radius * std::cos(t), -0.5f, radius * std::sin(t));
     }
@@ -123,8 +122,8 @@ void Mesh::buildCone(int step) {
     for (int i = 0; i < step; i++) {
         int next = (i + 1) % step;
 
-        indices[indexCounter++] = int3(i, next, baseCenter);
-        indices[indexCounter++] = int3(i, apex, next);
+        indices[indexCounter++] = int3(i, baseCenter, next);
+        indices[indexCounter++] = int3(i, next, apex);
     }
 }
 
@@ -282,8 +281,8 @@ void Mesh::buildTorus(int verticalStep, int horizontalStep) {
             int nextV = i * verticalStep + ((j + 1) % verticalStep);
             int nextHV = ((i + 1) % horizontalStep) * verticalStep + ((j + 1) % verticalStep);
 
-            indices[idx++] = int3(current, nextV, nextH);
-            indices[idx++] = int3(nextH, nextV, nextHV);
+            indices[idx++] = int3(current, nextH, nextV);
+            indices[idx++] = int3(nextV, nextH, nextHV);
         }
     }
 }
@@ -301,7 +300,7 @@ void Mesh::calculateNormals() {
         float3 ab = b - a;
         float3 ac = c - a;
 
-        float3 n = normalize(cross(ab, ac));
+        float3 n = normalize(cross(ac, ab));
 
         vertices[tri.a].normal += n;
         vertices[tri.b].normal += n;
