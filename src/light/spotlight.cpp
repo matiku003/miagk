@@ -10,7 +10,7 @@
 #include "rasterizer/fragment.h"
 
 float3 Spotlight::calculate(const TransformSystem& transform, const Fragment& fragment) {
-    float4x4 modelView = transform.world2view * transform.obj2world;
+    float4x4 modelView = transform.world2view;
 
     float4 n4 = modelView * float4(fragment.normal.x, fragment.normal.y, fragment.normal.z, 0.0f);
     float3 N = normalize(float3(n4.x, n4.y, n4.z));

@@ -1,8 +1,10 @@
 #pragma once
 
 #include <cstdlib>
+#include <vector>
 
 #include "buffer/framebuffer.h"
+#include "light/light.h"
 #include "math/barycentric.h"
 #include "math/geometry.h"
 
@@ -90,6 +92,13 @@ class Rasterizer {
      *
      * @param buffer Target framebuffer.
      * @param triangle Triangle to be drawn.
+     * @param lights List of lights used in the scene for phong shading.
+     * @param transform Transform used for light calcualtions.
+     * @param phong Determines whether Phong or Gouraud shading is used.
      */
-    static void drawTriangle(Framebuffer& buffer, const Triangle& triangle);
+    static void drawTriangle(Framebuffer& buffer,
+                             const Triangle& triangle,
+                             const std::vector<Light*>& lights,
+                             const TransformSystem& transform,
+                             bool phong);
 };

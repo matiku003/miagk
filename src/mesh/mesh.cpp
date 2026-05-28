@@ -98,32 +98,46 @@ void Mesh::buildCone(int step) {
 
     float twoPI = 2.0f * 3.14159265f;
     float angleStep = twoPI / step;
-
     float radius = 0.5f;
 
-    int verticesCount = step + 2;
-    int indicesCount = step * 2;
-    vertices.resize(verticesCount);
-    indices.resize(indicesCount);
+    int sideRingStart = 0;
+    int baseRingStart = step;
+
+    int apex = step * 2;
+    int baseCenter = step * 2 + 1;
+
+    vertices.resize(step * 2 + 2);
+    indices.resize(step * 2);
 
     for (int i = 0; i < step; i++) {
         float t = i * angleStep;
 
-        vertices[i].position = float3(radius * std::cos(t), -0.5f, radius * std::sin(t));
+        float x = radius * std::cos(t);
+        float z = radius * std::sin(t);
+
+        vertices[sideRingStart + i].position = float3(x, -0.5f, z);
     }
 
-    int baseCenter = step;
-    int apex = step + 1;
-    vertices[baseCenter].position = float3(0.0f, -0.5f, 0.0f);
+    for (int i = 0; i < step; i++) {
+        float t = i * angleStep;
+
+        float x = radius * std::cos(t);
+        float z = radius * std::sin(t);
+
+        vertices[baseRingStart + i].position = float3(x, -0.5f, z);
+    }
+
     vertices[apex].position = float3(0.0f, 0.5f, 0.0f);
+
+    vertices[baseCenter].position = float3(0.0f, -0.5f, 0.0f);
 
     int indexCounter = 0;
 
     for (int i = 0; i < step; i++) {
         int next = (i + 1) % step;
 
-        indices[indexCounter++] = int3(i, baseCenter, next);
-        indices[indexCounter++] = int3(i, next, apex);
+        indices[indexCounter++] = int3(baseRingStart + i, baseCenter, baseRingStart + next);
+        indices[indexCounter++] = int3(sideRingStart + i, sideRingStart + next, apex);
     }
 }
 

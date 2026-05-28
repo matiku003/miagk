@@ -18,8 +18,12 @@ inline Point applyMVP(const TransformSystem& t, const Point& p) {
     proj.y /= proj.w;
     proj.z /= proj.w;
 
+    float4 n4 = t.obj2world * float4{p.normal.x, p.normal.y, p.normal.z, 0.0f};
+    float3 normal = {n4.x, n4.y, n4.z};
+    normalize(normal);
+
     return {
-        {proj.x, proj.y, proj.z},
-        p.color
+        { proj.x,  proj.y,  proj.z},
+        p.color, normal, {world.x, world.y, world.z}
     };
 }

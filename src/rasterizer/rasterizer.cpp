@@ -41,7 +41,7 @@ Point Rasterizer::toImageSpace(const Point& point, const Framebuffer& buffer) {
 
     return {
         {x, y, z},
-        point.color
+        point.color, point.normal, point.worldPosition
     };
 }
 
@@ -63,7 +63,11 @@ AABB Rasterizer::clampAABBToImage(const AABB& bounds, const Framebuffer& buffer)
             std::min(bounds.maxY, (float)buffer.getHeight() - 1)};
 }
 
-void Rasterizer::drawTriangle(Framebuffer& buffer, const Triangle& triangle) {
+void Rasterizer::drawTriangle(Framebuffer& buffer,
+                              const Triangle& triangle,
+                              const std::vector<Light*>& lights,
+                              const TransformSystem& transform,
+                              bool phong) {
     Triangle triangleInImageSpace = {
         toImageSpace(triangle.a, buffer), toImageSpace(triangle.b, buffer), toImageSpace(triangle.c, buffer)};
 
@@ -82,24 +86,45 @@ void Rasterizer::drawTriangle(Framebuffer& buffer, const Triangle& triangle) {
     for (int y = (int)clippedBounds.minY; y <= (int)clippedBounds.maxY; ++y) {
         for (int x = (int)clippedBounds.minX; x <= (int)clippedBounds.maxX; ++x) {
             Point point = {
-                {x + 0.5f, y + 0.5f, 0.0f},
-                {}
+                {x + 0.5f, y + 0.5f, 0.0f}
             };
 
             if (isInsideTriangle(preparedTriangle, point)) {
                 Barycentric barycentricCoords = getBarycentricCoordinates(preparedTriangle, point);
-                float3 interpolatedColor = interpolate(barycentricCoords,
-                                                       triangleInImageSpace.a.color,
-                                                       triangleInImageSpace.b.color,
-                                                       triangleInImageSpace.c.color);
+
                 float depth = interpolate(barycentricCoords,
                                           triangleInImageSpace.a.position.z,
                                           triangleInImageSpace.b.position.z,
                                           triangleInImageSpace.c.position.z);
 
+                float3 finalColor(0, 0, 0);
+                if (!phong) {
+                    finalColor = interpolate(barycentricCoords,
+                                             triangleInImageSpace.a.color,
+                                             triangleInImageSpace.b.color,
+                                             triangleInImageSpace.c.color);
+                } else {
+
+                    float3 interpolatedNormal = normalize(interpolate(barycentricCoords,
+                                                                      triangleInImageSpace.a.normal,
+                                                                      triangleInImageSpace.b.normal,
+                                                                      triangleInImageSpace.c.normal));
+
+                    float3 interpolatedWorldPos = interpolate(barycentricCoords,
+                                                              triangleInImageSpace.a.worldPosition,
+                                                              triangleInImageSpace.b.worldPosition,
+                                                              triangleInImageSpace.c.worldPosition);
+
+                    Fragment fragment{interpolatedWorldPos, interpolatedNormal};
+
+                    for (auto* light : lights) {
+                        finalColor += light->calculate(transform, fragment);
+                    }
+                }
+
                 unsigned int index = (y * imageWidth) + x;
                 if (buffer.passesDepthTest(index, depth)) {
-                    buffer.setPixel(index, depth, interpolatedColor);
+                    buffer.setPixel(index, depth, finalColor);
                 }
             }
         }
