@@ -36,6 +36,14 @@ class ColorBuffer {
     void setPixelColor(size_t index, const float3& color);
 
     /**
+     * @brief Returns pixel color using x and y coordinates.
+     *
+     * @param x Horizontal pixel coordinate.
+     * @param y Vertical pixel coordinate.
+     */
+    float3 getPixelColor(unsigned int x, unsigned int y) const;
+
+    /**
      * @brief Fills the color buffer with a single color.
      *
      * @param color Color to fill the image with.
@@ -56,4 +64,12 @@ class ColorBuffer {
      * @brief Returns color buffer.
      */
     const std::vector<float3>& getColorBuffer() const;
+
+    /**
+     * @brief Samples texture using normalized coordinates.
+     *
+     * @param u Normalized horizontal texture coordinate [0, 1].
+     * @param v Normalized vertical texture coordinate [0, 1].
+     */
+    float3 sample(float u, float v) const;
 };

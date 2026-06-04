@@ -12,6 +12,7 @@ struct Point {
     float3 color{};
     float3 normal{};
     float3 worldPosition{};
+    float u, v;
 };
 
 /**

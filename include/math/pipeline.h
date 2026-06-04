@@ -24,6 +24,7 @@ inline Point applyMVP(const TransformSystem& t, const Point& p) {
 
     return {
         { proj.x,  proj.y,  proj.z},
-        p.color, normal, {world.x, world.y, world.z}
+        p.color, normal, {world.x, world.y, world.z},
+        p.u, p.v
     };
 }

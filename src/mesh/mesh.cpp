@@ -7,6 +7,10 @@
 #include "math/math.h"
 #include "math/vector.h"
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 void Mesh::buildTriangle() {
     vertices.resize(3);
     indices.resize(1);
@@ -17,42 +21,31 @@ void Mesh::buildTriangle() {
 }
 
 void Mesh::buildCube() {
-    vertices.resize(8);
-    indices.resize(12);
+    vertices.resize(24);
+    indices.resize(12 * 3);
 
-    vertices[0].position = float3(-0.5f, -0.5f, 0.5f);
-    vertices[1].position = float3(-0.5f, 0.5f, 0.5f);
-    vertices[2].position = float3(0.5f, -0.5f, 0.5f);
-    vertices[3].position = float3(0.5f, 0.5f, 0.5f);
+    float s = 0.5f;
 
-    vertices[4].position = float3(-0.5f, -0.5f, -0.5f);
-    vertices[5].position = float3(-0.5f, 0.5f, -0.5f);
-    vertices[6].position = float3(0.5f, -0.5f, -0.5f);
-    vertices[7].position = float3(0.5f, 0.5f, -0.5f);
+    auto addFace = [&](int i, float3 a, float3 b, float3 c, float3 d) {
+        int start = i * 4;
 
-    // front
-    indices[0] = int3(0, 1, 2);
-    indices[1] = int3(2, 1, 3);
+        vertices[start + 0].position = a;
+        vertices[start + 1].position = b;
+        vertices[start + 2].position = c;
+        vertices[start + 3].position = d;
 
-    // back
-    indices[2] = int3(4, 6, 5);
-    indices[3] = int3(6, 7, 5);
+        int triStart = i * 6;
 
-    // left
-    indices[4] = int3(4, 5, 0);
-    indices[5] = int3(0, 5, 1);
+        indices[triStart + 0] = int3(start + 0, start + 2, start + 1);
+        indices[triStart + 1] = int3(start + 2, start + 3, start + 1);
+    };
 
-    // right
-    indices[6] = int3(2, 3, 6);
-    indices[7] = int3(6, 3, 7);
-
-    // top
-    indices[8] = int3(1, 5, 3);
-    indices[9] = int3(3, 5, 7);
-
-    // bottom
-    indices[10] = int3(4, 0, 6);
-    indices[11] = int3(6, 0, 2);
+    addFace(0, float3(-s, -s, s), float3(s, -s, s), float3(-s, s, s), float3(s, s, s));
+    addFace(1, float3(s, -s, -s), float3(-s, -s, -s), float3(s, s, -s), float3(-s, s, -s));
+    addFace(2, float3(-s, -s, -s), float3(-s, -s, s), float3(-s, s, -s), float3(-s, s, s));
+    addFace(3, float3(s, -s, s), float3(s, -s, -s), float3(s, s, s), float3(s, s, -s));
+    addFace(4, float3(-s, s, s), float3(s, s, s), float3(-s, s, -s), float3(s, s, -s));
+    addFace(5, float3(-s, -s, -s), float3(s, -s, -s), float3(-s, -s, s), float3(s, -s, s));
 }
 
 void Mesh::buildPyramid() {
@@ -323,5 +316,107 @@ void Mesh::calculateNormals() {
 
     for (auto& v : vertices) {
         v.normal = normalize(v.normal);
+    }
+}
+
+void Mesh::applyMapping(MappingType type) {
+    if (vertices.empty())
+        return;
+
+    float3 minP = vertices[0].position;
+    float3 maxP = vertices[0].position;
+
+    for (const auto& v : vertices) {
+        minP.x = std::min(minP.x, v.position.x);
+        minP.y = std::min(minP.y, v.position.y);
+        minP.z = std::min(minP.z, v.position.z);
+
+        maxP.x = std::max(maxP.x, v.position.x);
+        maxP.y = std::max(maxP.y, v.position.y);
+        maxP.z = std::max(maxP.z, v.position.z);
+    }
+
+    float3 center = (minP + maxP) * 0.5f;
+    float3 size = maxP - minP;
+
+    if (size.x < 0.0001f)
+        size.x = 1.0f;
+    if (size.y < 0.0001f)
+        size.y = 1.0f;
+    if (size.z < 0.0001f)
+        size.z = 1.0f;
+
+    for (auto& v : vertices) {
+        float x = v.position.x - center.x;
+        float y = v.position.y - center.y;
+        float z = v.position.z - center.z;
+
+        switch (type) {
+        case MappingType::PLANAR: {
+            v.u = (x / size.x) + 0.5f;
+            v.v = (z / size.z) + 0.5f;
+            break;
+        }
+
+        case MappingType::SPHERICAL: {
+            float r = std::sqrt(x * x + y * y + z * z);
+            if (r < 0.0001f) {
+                v.u = 0.5f;
+                v.v = 0.5f;
+                break;
+            }
+
+            float angleU = std::atan2(z, x);
+            v.u = (angleU / (2.0f * M_PI)) + 0.5f;
+            float angleV = std::asin(y / r);
+            v.v = (angleV / M_PI) + 0.5f;
+            break;
+        }
+
+        case MappingType::CYLINDRICAL: {
+            float angleU = std::atan2(z, x);
+            v.u = (angleU / (2.0f * M_PI)) + 0.5f;
+
+            v.v = (y / size.y) + 0.5f;
+            break;
+        }
+
+        case MappingType::CUBIC: {
+            float3 n = v.normal;
+            float absNX = std::abs(n.x);
+            float absNY = std::abs(n.y);
+            float absNZ = std::abs(n.z);
+
+            if (absNZ >= absNX && absNZ >= absNY) {
+                if (n.z > 0) {
+                    v.u = (x / size.x) + 0.5f;
+                    v.v = (y / size.y) + 0.5f;
+                } else {
+                    v.u = (-x / size.x) + 0.5f;
+                    v.v = (y / size.y) + 0.5f;
+                }
+            } else if (absNX >= absNY) {
+                if (n.x > 0) {
+                    v.u = (-z / size.z) + 0.5f;
+                    v.v = (y / size.y) + 0.5f;
+                } else {
+                    v.u = (z / size.z) + 0.5f;
+                    v.v = (y / size.y) + 0.5f;
+                }
+            } else {
+                if (n.y > 0) {
+                    v.u = (x / size.x) + 0.5f;
+                    v.v = (-z / size.z) + 0.5f;
+                } else {
+                    v.u = (x / size.x) + 0.5f;
+                    v.v = (z / size.z) + 0.5f;
+                }
+            }
+            break;
+        }
+        }
+
+        v.u = std::max(0.0f, std::min(1.0f, v.u));
+        v.v = std::max(0.0f, std::min(1.0f, v.v));
     }
 }

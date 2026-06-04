@@ -16,11 +16,13 @@
 #include "rasterizer/fragment.h"
 #include "rasterizer/rasterizer.h"
 #include "utils/imageExporter.h"
+#include "utils/imageImporter.h"
 
 static void drawMeshGouraud(Framebuffer& framebuffer,
                             const TransformSystem& transform,
                             const Mesh& mesh,
-                            const std::vector<Light*>& lights) {
+                            const std::vector<Light*>& lights,
+                            const ColorBuffer& texture) {
 
     for (const auto& tri : mesh.indices) {
         const auto& vA = mesh.vertices[tri.a];
@@ -55,20 +57,23 @@ static void drawMeshGouraud(Framebuffer& framebuffer,
         // float3 finalColorB = float3(0.0f, 1.0f, 0.0f) * lightB;
         // float3 finalColorC = float3(0.0f, 0.0f, 1.0f) * lightC;
 
-        Rasterizer::drawTriangle(framebuffer,
-                                 Triangle{applyMVP(transform, {vA.position, finalColorA, vA.normal, vA.worldPosition}),
-                                          applyMVP(transform, {vB.position, finalColorB, vB.normal, vB.worldPosition}),
-                                          applyMVP(transform, {vC.position, finalColorC, vC.normal, vC.worldPosition})},
-                                 lights,
-                                 transform,
-                                 false);
+        Rasterizer::drawTriangle(
+            framebuffer,
+            Triangle{applyMVP(transform, {vA.position, finalColorA, vA.normal, vA.worldPosition, vA.u, vA.v}),
+                     applyMVP(transform, {vB.position, finalColorB, vB.normal, vB.worldPosition, vB.u, vB.v}),
+                     applyMVP(transform, {vC.position, finalColorC, vC.normal, vC.worldPosition, vC.u, vC.v})},
+            lights,
+            transform,
+            texture,
+            false);
     }
 }
 
 static void drawMeshPhong(Framebuffer& framebuffer,
                           const TransformSystem& transform,
                           const Mesh& mesh,
-                          const std::vector<Light*>& lights) {
+                          const std::vector<Light*>& lights,
+                          const ColorBuffer& texture) {
 
     for (const auto& tri : mesh.indices) {
         const auto& vA = mesh.vertices[tri.a];
@@ -79,13 +84,15 @@ static void drawMeshPhong(Framebuffer& framebuffer,
         // float3 finalColorB = float3(0.0f, 1.0f, 0.0f) * lightB;
         // float3 finalColorC = float3(0.0f, 0.0f, 1.0f) * lightC;
 
-        Rasterizer::drawTriangle(framebuffer,
-                                 Triangle{applyMVP(transform, {vA.position, {}, vA.normal, vA.worldPosition}),
-                                          applyMVP(transform, {vB.position, {}, vB.normal, vB.worldPosition}),
-                                          applyMVP(transform, {vC.position, {}, vC.normal, vC.worldPosition})},
-                                 lights,
-                                 transform,
-                                 true);
+        Rasterizer::drawTriangle(
+            framebuffer,
+            Triangle{applyMVP(transform, {vA.position, {}, vA.normal, vA.worldPosition, vA.u, vA.v}),
+                     applyMVP(transform, {vB.position, {}, vB.normal, vB.worldPosition, vB.u, vB.v}),
+                     applyMVP(transform, {vC.position, {}, vC.normal, vC.worldPosition, vC.u, vC.v})},
+            lights,
+            transform,
+            texture,
+            true);
     }
 }
 
@@ -94,11 +101,11 @@ int main() {
 
     TransformSystem transform1, transform2, transform3;
     transform1.setPerspective(60.0f, 1.0f, 0.1f, 100.0f);
-    transform1.setLookAt({0, 0, 3}, {0, 0, 0}, {0, 1, 0});
+    transform1.setLookAt({0, 3, 3}, {0, 0, 0}, {0, 1, 0});
     transform2.setPerspective(60.0f, 1.0f, 0.1f, 100.0f);
-    transform2.setLookAt({0, 0, 3}, {0, 0, 0}, {0, 1, 0});
+    transform2.setLookAt({0, 3, 3}, {0, 0, 0}, {0, 1, 0});
     transform3.setPerspective(60.0f, 1.0f, 0.1f, 100.0f);
-    transform3.setLookAt({0, 0, 3}, {0, 0, 0}, {0, 1, 0});
+    transform3.setLookAt({0, 3, 3}, {0, 0, 0}, {0, 1, 0});
 
     Framebuffer framebuffer1(1024, 1024);
     Framebuffer framebuffer2(1024, 1024);
@@ -108,59 +115,46 @@ int main() {
     framebuffer1.clear(gray);
     framebuffer2.clear(gray);
 
-    Mesh cone, sphere, torus;
+    Mesh cube, sphere, cylinder;
 
     DirectionalLight directional;
-    directional.position = {0.0f, -1.0f, 0.0f};
+    directional.position = {-1.0f, -1.0f, -1.0f};
     directional.ambient = {0.1f, 0.1f, 0.1f};
-    directional.diffuse = {1.0f, 0.0f, 0.0f};
+    directional.diffuse = {1.0f, 1.0f, 1.0f};
     directional.specular = {1.0f, 1.0f, 1.0f};
     directional.shininess = 100.0f;
 
-    PointLight point;
-    point.position = {0.0f, 0.0f, 0.0f};
-    point.ambient = {0.1f, 0.1f, 0.1f};
-    point.diffuse = {0.0f, 1.0f, 0.0f};
-    point.specular = {0.0f, 1.0f, 0.0f};
-    point.shininess = 50.0f;
+    std::vector<Light*> lights = {&directional};
+    std::vector<Light*> emptyLights = {};
 
-    Spotlight spot;
-    spot.position = {1.0f, 0.0f, 1.5f};
-    spot.direction = {0.0f, 0.0f, -1.0f};
-    spot.ambient = {0.05f, 0.05f, 0.05f};
-    spot.diffuse = {0.0f, 0.0f, 1.0f};
-    spot.specular = {1.0f, 1.0f, 1.0f};
-    spot.shininess = 32.0f;
-    spot.cutoff = std::cos(15.0f * 3.14159f / 180.0f);
-    spot.outerCutoff = std::cos(20.0f * 3.14159f / 180.0f);
-    spot.constant = 1.0f;
-    spot.linear = 0.09f;
-
-    std::vector<Light*> lights = {&directional, &point, &spot};
+    ColorBuffer stoneTexture = ImageImporter::loadTGA("textures/stone.tga");
+    ColorBuffer waterTexture = ImageImporter::loadTGA("textures/water.tga");
 
     int steps = 20;
 
-    cone.buildCone(steps);
+    cube.buildCube();
     transform1.multiplyByTranslation(float3(0, 1, 0));
-    cone.calculateNormals();
-    drawMeshPhong(framebuffer1, transform1, cone, lights);
+    cube.calculateNormals();
+    cube.applyMapping(MappingType::CUBIC);
+    drawMeshPhong(framebuffer1, transform1, cube, emptyLights, stoneTexture);
 
-    sphere.buildTorus(steps, steps);
-    transform2.multiplyByRotation(90, float3(1, 0, 0));
+    sphere.buildSphere(steps, steps);
     transform2.multiplyByTranslation(float3(-1, 0, 0));
     sphere.calculateNormals();
-    drawMeshPhong(framebuffer1, transform2, sphere, lights);
+    sphere.applyMapping(MappingType::SPHERICAL);
+    drawMeshPhong(framebuffer1, transform2, sphere, lights, stoneTexture);
 
-    torus.buildSphere(steps, steps);
+    cylinder.buildCylinder(steps, steps);
     transform3.multiplyByTranslation(float3(1, 0, 0));
-    torus.calculateNormals();
-    drawMeshPhong(framebuffer1, transform3, torus, lights);
+    cylinder.calculateNormals();
+    cylinder.applyMapping(MappingType::CYLINDRICAL);
+    drawMeshPhong(framebuffer1, transform3, cylinder, lights, waterTexture);
 
     ImageExporter::saveTGA(framebuffer1.getColorBuffer(), "outputPhong.tga");
 
-    drawMeshGouraud(framebuffer2, transform1, cone, lights);
-    drawMeshGouraud(framebuffer2, transform2, sphere, lights);
-    drawMeshGouraud(framebuffer2, transform3, torus, lights);
+    drawMeshGouraud(framebuffer2, transform1, cube, emptyLights, stoneTexture);
+    drawMeshGouraud(framebuffer2, transform2, sphere, lights, stoneTexture);
+    drawMeshGouraud(framebuffer2, transform3, cylinder, lights, waterTexture);
 
     ImageExporter::saveTGA(framebuffer2.getColorBuffer(), "outputGouraud.tga");
 

@@ -94,11 +94,13 @@ class Rasterizer {
      * @param triangle Triangle to be drawn.
      * @param lights List of lights used in the scene for phong shading.
      * @param transform Transform used for light calcualtions.
+     * @param texture Texture to be applied on the triangle.
      * @param phong Determines whether Phong or Gouraud shading is used.
      */
     static void drawTriangle(Framebuffer& buffer,
                              const Triangle& triangle,
                              const std::vector<Light*>& lights,
                              const TransformSystem& transform,
+                             const ColorBuffer& texture,
                              bool phong);
 };

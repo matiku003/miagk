@@ -5,4 +5,5 @@
 struct Fragment {
     float3 position;
     float3 normal;
+    float u, v;
 };

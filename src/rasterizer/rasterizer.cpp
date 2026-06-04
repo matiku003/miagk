@@ -41,7 +41,7 @@ Point Rasterizer::toImageSpace(const Point& point, const Framebuffer& buffer) {
 
     return {
         {x, y, z},
-        point.color, point.normal, point.worldPosition
+        point.color, point.normal, point.worldPosition, point.u, point.v
     };
 }
 
@@ -67,6 +67,7 @@ void Rasterizer::drawTriangle(Framebuffer& buffer,
                               const Triangle& triangle,
                               const std::vector<Light*>& lights,
                               const TransformSystem& transform,
+                              const ColorBuffer& texture,
                               bool phong) {
     Triangle triangleInImageSpace = {
         toImageSpace(triangle.a, buffer), toImageSpace(triangle.b, buffer), toImageSpace(triangle.c, buffer)};
@@ -97,12 +98,25 @@ void Rasterizer::drawTriangle(Framebuffer& buffer,
                                           triangleInImageSpace.b.position.z,
                                           triangleInImageSpace.c.position.z);
 
+                float u = interpolate(
+                    barycentricCoords, triangleInImageSpace.a.u, triangleInImageSpace.b.u, triangleInImageSpace.c.u);
+
+                float v = interpolate(
+                    barycentricCoords, triangleInImageSpace.a.v, triangleInImageSpace.b.v, triangleInImageSpace.c.v);
+
+                float3 texColor = texture.sample(u, v);
+
                 float3 finalColor(0, 0, 0);
                 if (!phong) {
                     finalColor = interpolate(barycentricCoords,
                                              triangleInImageSpace.a.color,
                                              triangleInImageSpace.b.color,
-                                             triangleInImageSpace.c.color);
+                                             triangleInImageSpace.c.color) *
+                                 texColor;
+
+                    if (lights.size() == 0) {
+                        finalColor = texColor;
+                    }
                 } else {
 
                     float3 interpolatedNormal = normalize(interpolate(barycentricCoords,
@@ -115,10 +129,14 @@ void Rasterizer::drawTriangle(Framebuffer& buffer,
                                                               triangleInImageSpace.b.worldPosition,
                                                               triangleInImageSpace.c.worldPosition);
 
-                    Fragment fragment{interpolatedWorldPos, interpolatedNormal};
+                    Fragment fragment{interpolatedWorldPos, interpolatedNormal, u, v};
+
+                    if (lights.size() == 0) {
+                        finalColor = texColor;
+                    }
 
                     for (auto* light : lights) {
-                        finalColor += light->calculate(transform, fragment);
+                        finalColor += light->calculate(transform, fragment) * texColor;
                     }
                 }
 

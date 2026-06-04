@@ -151,6 +151,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="include\light\spotlight.h" />
+    <ClCompile Include="include\utils\imageImporter.h" />
     <ClCompile Include="src\buffer\depthBuffer.cpp" />
     <ClCompile Include="src\buffer\framebuffer.cpp" />
     <ClCompile Include="src\buffer\colorBuffer.cpp" />
@@ -161,6 +162,7 @@
     <ClCompile Include="src\mesh\mesh.cpp" />
     <ClCompile Include="src\rasterizer\rasterizer.cpp" />
     <ClCompile Include="src\utils\imageExporter.cpp" />
+    <ClCompile Include="src\utils\imageImporter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\buffer\depthBuffer.h" />

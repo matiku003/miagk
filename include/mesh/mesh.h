@@ -5,6 +5,16 @@
 #include "math/geometry.h"
 #include "math/vector.h"
 
+/**
+ * @brief Types of texture mapping projections available for the mesh.
+ */
+enum class MappingType {
+    PLANAR,
+    SPHERICAL,
+    CYLINDRICAL,
+    CUBIC
+};
+
 class Mesh {
   public:
     std::vector<Point> vertices;
@@ -61,4 +71,11 @@ class Mesh {
      * @brief Computes vertex normals.
      */
     void calculateNormals();
+
+    /**
+     * @brief Applies texture coordinates (u, v) to all vertices based on their position.
+     *
+     * @param type The projection method to use.
+     */
+    void applyMapping(MappingType type);
 };
